@@ -7,12 +7,11 @@ Globals:
     MemorySize: 512
     Environment:
       Variables:
-        NODE_ENV: !Ref NODE_ENV
-        AWS_REGION: !Ref AWS::Region
+        ENVIRONMENT: !Ref EnvironmentType  # Renamed to avoid linting issues
         SECRET_NAME: cms_secrets  # AWS Secrets Manager Name
 
 Parameters:
-  NODE_ENV:
+  EnvironmentType:
     Type: String
     Default: development
     AllowedValues:
@@ -25,10 +24,9 @@ Resources:
   NodeAppFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "cms-app-${NODE_ENV}"
-      Handler: app.lambdaHandler  # Update if needed
-      Runtime: nodejs18.x
-      CodeUri: .
+      FunctionName: !Sub "cms-app-${EnvironmentType}"
+      PackageType: Image  # Use Image instead of Zip
+      ImageUri: 711387116482.dkr.ecr.ap-south-1.amazonaws.com/custom_cms_backend:latest  # Use your ECR image URI
       Policies:
         - Statement:
             - Effect: Allow
@@ -38,7 +36,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
       Environment:
         Variables:
-          NODE_ENV: !Ref NODE_ENV
+          ENVIRONMENT: !Ref EnvironmentType  # Updated environment variable name
           SECRET_NAME: cms_secrets
       Events:
         Api:
@@ -50,4 +48,4 @@ Resources:
 Outputs:
   ApiGatewayInvokeURL:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${NODE_ENV}/api/v1/post/get"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${EnvironmentType}/api/v1/post/get"
