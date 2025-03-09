@@ -26,8 +26,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "cms-app-${NODE_ENV}"
-      PackageType: Image  # Use Image instead of Zip
-      ImageUri: satishnengineer/custom_cms_backend:latest  # Use Docker Hub image
+      Handler: app.lambdaHandler  # Update if needed
+      Runtime: nodejs18.x
+      CodeUri: .
       Policies:
         - Statement:
             - Effect: Allow
